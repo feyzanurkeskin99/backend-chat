@@ -1,0 +1,11 @@
+#!/usr/bin/env node
+
+
+        const app = require('../app');
+        require('dotenv').config();
+        var port = process.env.PORT;
+        app.set('port', port);
+        app.listen(port,()=>{
+            console.log('Listening Port:  '+port);
+        });
+        module.exports.HTTPS=app; 
