@@ -1,5 +1,6 @@
 const Contact = require('../model/contacts');
 const Messages = require('../model/messages');
+const SignUps = require('../model/signUp');
 const { Op } = require("sequelize");
 
 
@@ -8,8 +9,42 @@ module.exports.index = async function (req, res) {
   const contact = await Contact.findAll({
     where: {ToEmail : req.query.ToEmail}
   });
-  console.log("All contact:", req.query.ToEmail);
+  //console.log("All contact:", contact);
   res.json(contact);
+};
+
+
+module.exports.delete = async function (req, res) {
+  let contact= req.query.toEmail
+  let user= req.query.email
+
+  try {
+    await Contact.destroy(
+      {where: 
+        {
+          Email: contact,
+          ToEmail: user
+        }
+      }
+      )
+    .then((result)=>{
+      res.status(200).json({
+          status: true,
+          statusCode: 200,
+          message: "User is successfully deleted"
+      }); 
+    })
+    .catch((err)=>{
+      res.status(300).json({
+          status: false,
+          statusCode: 300,
+          message: "User isn't successfully deleted"
+      }); 
+        console.log(err)
+    });
+  } catch (error) {
+    console.log(error)
+  }
 };
 
 module.exports.put = async function(req, res){
@@ -40,13 +75,14 @@ console.log("msg:", JSON.stringify(contactMsg, null, 2))
           contactMsg.forEach(msg => {
             if(msg.dataValues.Email === loginEmail){
               msg.update({ToName:updateData?.Name}, {where:{Email:updateData.Email}})
-              contact.update({ToName:updateData?.Name}, {where:{Email:updateData.Email}})
-              //ToName 'i güncelle updateData.Name ile
-            }else if(msg.dataValues.ToEmail === loginEmail){
-              msg.update({Name:updateData?.Name}, {where:{Email:updateData.Email}})
               contact.update({Name:updateData?.Name}, {where:{Email:updateData.Email}})
-              //Name 'i güncelle updateData.Name ile
+              //ToName 'i güncelle updateData.Name ile
             }
+            // else if(msg.dataValues.ToEmail === loginEmail){
+            //   msg.update({Name:updateData?.Name}, {where:{Email:updateData.Email}})
+            //   contact.update({Name:updateData?.Name}, {where:{Email:updateData.Email}})
+            //   //Name 'i güncelle updateData.Name ile
+            // }
           console.log("----")           
           console.log(msg.dataValues)           
           console.log("----")           
@@ -94,16 +130,23 @@ module.exports.post = async function (req, res) {
         ]}
       });
 
-      
+      const signUps = await SignUps.findOne({
+        where: {
+          Email : ContactData.Email
+        }
+      });
+
       try{
-        if (!contact) {
+        if (!contact && signUps) {
           let contactData = {
             Name: ContactData.Name,
             Email: ContactData.Email,
             ToName: ContactData.ToName,
             ToEmail: ContactData.ToEmail,
           };
-            
+            console.log("121212")
+            console.log(contactData)
+            console.log("151515")
             await Contact.create(contactData)
             .then((result)=>{
               res.status(200).json({
@@ -124,11 +167,20 @@ module.exports.post = async function (req, res) {
             });
           
         }else{
-          res.status(313).json({
-            status: false,
-            statusCode: 313,
-            message: "Contact is already added in"
-          }); 
+          if(contact){
+            res.status(313).json({
+              status: false,
+              statusCode: 313,
+              message: "Contact is already added in"
+            }); 
+          }else if(!signUps){
+            res.status(314).json({
+              status: false,
+              statusCode: 314,
+              message: "User didn't use application"
+            }); 
+          }
+          
         }
         }catch(err){
             console.log(err)

@@ -5,22 +5,26 @@ const jwt = require('jsonwebtoken')
 module.exports.delete = async function (req, res) {
   let id= req.query.email
 
-  await Login.destroy({where: {Email: id}})
-  .then((result)=>{
-    res.status(200).json({
-        status: true,
-        statusCode: 200,
-        message: "User is successfully deleted"
-    }); 
-  })
-  .catch((err)=>{
-    res.status(300).json({
-        status: false,
-        statusCode: 300,
-        message: "User isn't successfully deleted"
-    }); 
-      console.log(err)
-  });
+  try {
+    await Login.destroy({where: {Email: id}})
+    .then((result)=>{
+      res.status(200).json({
+          status: true,
+          statusCode: 200,
+          message: "User is successfully deleted"
+      }); 
+    })
+    .catch((err)=>{
+      res.status(300).json({
+          status: false,
+          statusCode: 300,
+          message: "User isn't successfully deleted"
+      }); 
+        console.log(err)
+    });
+  } catch (error) {
+    console.log(error)
+  }
 };
 
 
@@ -29,7 +33,7 @@ module.exports.index = async function (req, res) {
   const login = await Login.findAll({
 
   });
-  console.log("All login:", JSON.stringify(login, null, 2));
+  //console.log("All login:", JSON.stringify(login, null, 2));
   res.json(login);
 };
 
