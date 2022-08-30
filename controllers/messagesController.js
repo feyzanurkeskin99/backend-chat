@@ -167,7 +167,26 @@ io.on('connection', (socket)=>{
     })
     console.log('socket disconnected ')
 })
-
+socket.on('call', (data)=>{
+  socket.emit('joined-call',{
+    Email: data.Email,
+    ToEmail: data.ToEmail
+  })
+  socket.broadcast.emit('joined-call',{
+    Email: data.Email,
+    ToEmail: data.ToEmail
+  })
+})
+socket.on('rejectCall', (data)=>{
+  socket.emit('reject-call',{
+    Email: data.Email,
+    ToEmail: data.ToEmail
+  })
+  socket.broadcast.emit('reject-call',{
+    Email: data.Email,
+    ToEmail: data.ToEmail
+  })
+})
 });
 
 module.exports.delete = async function (req, res) {
@@ -390,5 +409,5 @@ module.exports.index = async function (req, res) {
 
 
 server.listen(3001, ()=>{
-  console.log(`server is running port: https://feyzanurkeskin99.github.io:${3001}`); 
+  console.log(`server is running port: http://localhost:${3001}`); 
 })
